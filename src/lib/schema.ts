@@ -1,31 +1,25 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { relations } from "drizzle-orm";
 import {
-  boolean,
   integer,
-  pgTable,
   primaryKey,
+  sqliteTable,
   text,
-  timestamp,
-} from "drizzle-orm/pg-core";
+} from "drizzle-orm/sqlite-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
-const sql = neon(process.env.DATABASE_URL!);
-export const db = drizzle({ client: sql });
-
-export const users = pgTable("user", {
+export const users = sqliteTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text("name"),
   email: text("email").unique(),
-  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  emailVerified: integer("emailVerified", { mode: "timestamp" }),
   image: text("image"),
   stripeCustomerId: text("stripeCustomerId").unique(),
-  isActive: boolean("isActive").default(false).notNull(),
+  isActive: integer("isActive", { mode: "boolean" }).notNull().default(false),
 });
 
-export const accounts = pgTable(
+export const accounts = sqliteTable(
   "account",
   {
     userId: text("userId")
@@ -51,20 +45,20 @@ export const accounts = pgTable(
   ],
 );
 
-export const sessions = pgTable("session", {
+export const sessions = sqliteTable("session", {
   sessionToken: text("sessionToken").primaryKey(),
   userId: text("userId")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires", { mode: "date" }).notNull(),
+  expires: integer("expires", { mode: "timestamp" }).notNull(),
 });
 
-export const verificationTokens = pgTable(
+export const verificationTokens = sqliteTable(
   "verificationToken",
   {
     identifier: text("identifier").notNull(),
     token: text("token").notNull(),
-    expires: timestamp("expires", { mode: "date" }).notNull(),
+    expires: integer("expires", { mode: "timestamp" }).notNull(),
   },
   (verificationToken) => [
     {
@@ -75,7 +69,7 @@ export const verificationTokens = pgTable(
   ],
 );
 
-export const authenticators = pgTable(
+export const authenticators = sqliteTable(
   "authenticator",
   {
     credentialID: text("credentialID").notNull().unique(),
@@ -86,7 +80,9 @@ export const authenticators = pgTable(
     credentialPublicKey: text("credentialPublicKey").notNull(),
     counter: integer("counter").notNull(),
     credentialDeviceType: text("credentialDeviceType").notNull(),
-    credentialBackedUp: boolean("credentialBackedUp").notNull(),
+    credentialBackedUp: integer("credentialBackedUp", {
+      mode: "boolean",
+    }).notNull(),
     transports: text("transports"),
   },
   (authenticator) => [
@@ -97,3 +93,35 @@ export const authenticators = pgTable(
     },
   ],
 );
+
+export const meetings = sqliteTable("meetings", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  organizerBlocks: text("organizerBlocks", { mode: "json" }),
+  createdAt: integer("createdAt", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const responses = sqliteTable("responses", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  meetingId: text("meetingId")
+    .notNull()
+    .references(() => meetings.id, { onDelete: "cascade" }),
+  participantName: text("participantName").notNull(),
+  blocks: text("blocks", { mode: "json" }),
+  respondedAt: integer("respondedAt", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const meetingsRelations = relations(meetings, ({ many }) => ({
+  responses: many(responses),
+}));
+
+export const responsesRelations = relations(responses, ({ one }) => ({
+  meeting: one(meetings, {
+    fields: [responses.meetingId],
+    references: [meetings.id],
+  }),
+}));

@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().min(1),
+    DATABASE_AUTH_TOKEN: z.string().optional(),
     APP_URL: z.string().url().min(1),
     GOOGLE_SITE_VERIFICATION_ID: z.string().optional(),
     GITHUB_ID: z.string().min(1),
@@ -19,6 +20,7 @@ export const env = createEnv({
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_AUTH_TOKEN: process.env.DATABASE_AUTH_TOKEN,
     APP_URL: process.env.APP_URL,
     GOOGLE_SITE_VERIFICATION_ID: process.env.GOOGLE_SITE_VERIFICATION_ID,
     GITHUB_ID: process.env.GITHUB_ID,

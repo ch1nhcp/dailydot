@@ -5,7 +5,8 @@ import { Adapter } from "next-auth/adapters";
 import GitHubProvider from "next-auth/providers/github";
 
 import { env } from "@/env.mjs";
-import { db, users } from "@/lib/schema";
+import { db } from "@/lib/db";
+import { users } from "@/lib/schema";
 import { stripeServer } from "@/lib/stripe";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
