@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 import { env } from "@/env.mjs";
-import { db, users } from "@/lib/schema";
+import { db } from "@/lib/db";
+import { users } from "@/lib/schema";
 import { stripeServer } from "@/lib/stripe";
 
 const webhookHandler = async (req: NextRequest) => {
