@@ -1,10 +1,10 @@
 import { env } from "@/env.mjs";
 
 export const siteConfig = {
-  title: "Next.js Starter",
+  title: "Quickmeet by Daily Dot",
   description:
-    "A Next.js starter template, packed with features like TypeScript, Tailwind CSS, Next-auth, Eslint, testing tools and more. Jumpstart your project with efficiency and style.",
-  keywords: ["Next.js", "TypeScript", "Tailwind CSS", "Next-auth"],
+    "Coordinate availability in minutes with Quickmeet. Share a short meeting link, gather blocks from your team, and see overlap instantly in a clean, Things-inspired UI.",
+  keywords: ["Scheduling", "Meetings", "Availability", "Next.js"],
   url: env.APP_URL,
   googleSiteVerificationId: env.GOOGLE_SITE_VERIFICATION_ID || "",
 };
